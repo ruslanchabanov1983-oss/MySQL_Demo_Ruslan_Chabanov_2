@@ -37,7 +37,6 @@
         radial-gradient(ellipse 50% 40% at 10% 75%, rgba(168, 85, 247, 0.16), transparent);
     }
 
-    /* Тонкая архитектурная сетка с затуханием к краям */
     .tech-grid {
       position: absolute;
       inset: 0;
@@ -49,7 +48,6 @@
       -webkit-mask-image: radial-gradient(circle at 50% 35%, black 35%, transparent 85%);
     }
 
-    /* Медленно парящие мягкие блики (GPU-ускоренные, без лагов) */
     .glow-orb {
       position: absolute;
       border-radius: 50%;
@@ -80,7 +78,6 @@
       100% { transform: translate3d(30px, -25px, 0); }
     }
 
-    /* Бегущие световые лучи (Data Beams) */
     .beam {
       position: absolute;
       width: 1px;
@@ -111,16 +108,13 @@
       align-items: center;
     }
 
-    /* Верхняя панель навигации */
     .nav-pill {
       width: 100%;
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 10px 16px;
-      background: rgba(15, 23, 42, 0.72);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(15, 23, 42, 0.78);
       border: 1px solid rgba(255, 255, 255, 0.09);
       border-radius: 999px;
       margin-bottom: 28px;
@@ -142,12 +136,6 @@
       border-radius: 50%;
       background: #10b981;
       box-shadow: 0 0 12px #10b981;
-      animation: pulseGlow 2.2s infinite;
-    }
-
-    @keyframes pulseGlow {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(0.8); opacity: 0.45; }
     }
 
     .nav-right {
@@ -158,7 +146,8 @@
 
     .sync-tag {
       font-size: 11px;
-      color: #94a3b8;
+      color: #34d399;
+      font-weight: 600;
     }
 
     .admin-btn {
@@ -183,7 +172,6 @@
       color: #6ee7b7;
     }
 
-    /* Заголовок и карточка автора */
     .hero {
       text-align: center;
       margin-bottom: 20px;
@@ -229,7 +217,7 @@
       gap: 12px;
       padding: 12px 16px;
       border-radius: 18px;
-      background: rgba(15, 23, 42, 0.72);
+      background: rgba(15, 23, 42, 0.8);
       border: 1px solid rgba(56, 189, 248, 0.25);
       margin-bottom: 22px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
@@ -269,10 +257,9 @@
       margin-top: 2px;
     }
 
-    /* Форма ввода */
     .composer-card {
       width: 100%;
-      background: rgba(15, 23, 42, 0.78);
+      background: rgba(15, 23, 42, 0.84);
       border: 1px solid rgba(255, 255, 255, 0.11);
       border-radius: 24px;
       padding: 20px;
@@ -322,7 +309,7 @@
       padding: 14px 16px 28px;
       border-radius: 16px;
       border: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(6, 8, 15, 0.85);
+      background: rgba(6, 8, 15, 0.88);
       color: #ffffff;
       font-size: 15px;
       line-height: 1.45;
@@ -372,12 +359,13 @@
       transform: none;
     }
 
-    /* Панель управления лентой */
     .feed-controls {
       width: 100%;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
       margin-bottom: 14px;
       padding: 0 4px;
     }
@@ -393,9 +381,31 @@
       font-weight: 800;
     }
 
+    .controls-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .refresh-btn {
+      background: rgba(15, 23, 42, 0.82);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      color: #7dd3fc;
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .refresh-btn:hover {
+      background: rgba(56, 189, 248, 0.16);
+    }
+
     .sort-tabs {
       display: flex;
-      background: rgba(15, 23, 42, 0.75);
+      background: rgba(15, 23, 42, 0.82);
       border: 1px solid rgba(255, 255, 255, 0.09);
       border-radius: 999px;
       padding: 3px;
@@ -410,7 +420,7 @@
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: background 0.2s ease, color 0.2s ease;
     }
 
     .sort-btn.active {
@@ -418,7 +428,6 @@
       color: #ffffff;
     }
 
-    /* Лента сообщений (без тяжелого blur на каждом элементе — ноль мерцания!) */
     .feed-list {
       width: 100%;
       list-style: none;
@@ -429,29 +438,19 @@
     }
 
     .post-card {
-      background: rgba(15, 23, 42, 0.82);
+      background: #0f172a;
       border: 1px solid rgba(255, 255, 255, 0.09);
       border-radius: 20px;
       padding: 16px 18px;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      transition: border-color 0.2s ease, transform 0.2s ease;
     }
 
     .post-card:hover {
-      border-color: rgba(56, 189, 248, 0.38);
+      border-color: rgba(56, 189, 248, 0.42);
       transform: translateY(-2px);
-      box-shadow: 0 12px 30px rgba(2, 132, 199, 0.14);
-    }
-
-    .post-card.new-entry {
-      animation: fadeUp 0.35s ease;
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
     }
 
     .post-header {
@@ -541,19 +540,17 @@
       font-size: 12.5px;
       font-weight: 700;
       cursor: pointer;
-      transition: background 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+      transition: background 0.18s ease, border-color 0.18s ease;
     }
 
     .react-btn:hover {
       background: rgba(255, 255, 255, 0.12);
-      transform: scale(1.05);
     }
 
     .react-btn.active {
       background: rgba(99, 102, 241, 0.25);
       border-color: #818cf8;
       color: #ffffff;
-      box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
     }
 
     .del-btn {
@@ -572,269 +569,9 @@
       color: #ffffff;
     }
 
-    /* Футер */
     .footer {
       width: 100%;
       text-align: center;
       padding: 16px;
       border-radius: 18px;
-      background: rgba(15, 23, 42, 0.72);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      font-size: 12px;
-      color: #94a3b8;
-      line-height: 1.6;
-    }
-
-    .footer strong {
-      color: #e2e8f0;
-    }
-  </style>
-</head>
-<body>
-  <div class="bg-layer">
-    <div class="tech-grid"></div>
-    <div class="glow-orb orb-left"></div>
-    <div class="glow-orb orb-right"></div>
-    <div class="beam beam-1"></div>
-    <div class="beam beam-2"></div>
-    <div class="beam beam-3"></div>
-  </div>
-
-  <div class="container">
-    <nav class="nav-pill">
-      <div class="nav-brand">
-        <span class="pulse-ring"></span>
-        <span>ADU LIVE PULSE</span>
-      </div>
-      <div class="nav-right">
-        <span class="sync-tag" id="syncStatus">● Live</span>
-        <button type="button" class="admin-btn" id="adminToggle">🔐 Admin</button>
-      </div>
-    </nav>
-
-    <div class="hero">
-      <div class="uni-chip">🎓 Andijon Davlat Universiteti • 2026</div>
-      <h1>Talabalar va Ustozlar<br>Jonli Muloqot Maydoni</h1>
-      <p class="subtitle">Fikringizni qoldiring, guruhingizni belgilang va eng yaxshi tilaklarga reaksiya bildiring.</p>
-    </div>
-
-    <div class="creator-card">
-      <div class="creator-avatar">CR</div>
-      <div class="creator-meta">
-        <div class="creator-label">Loyiha muallifi • Full-Stack Developer</div>
-        <div class="creator-name">ATT guruhi talabasi Chabanov Ruslan Alievich tomonidan ishlab chiqildi</div>
-      </div>
-    </div>
-
-    <div class="composer-card">
-      <form id="noteForm">
-        <div class="role-selector" id="roleSelector">
-          <button type="button" class="role-pill selected" data-role="ATT Talabasi">🎓 ATT Talabasi</button>
-          <button type="button" class="role-pill" data-role="Boshqa guruh">💻 Boshqa guruh</button>
-          <button type="button" class="role-pill" data-role="Ustoz">👨‍🏫 Ustoz</button>
-          <button type="button" class="role-pill" data-role="Mehmon">🚀 Mehmon</button>
-        </div>
-
-        <div class="input-wrap">
-          <textarea id="nameInput" placeholder="Ismingiz va samimiy tilagingizni yozing..." maxlength="250" required></textarea>
-          <span class="char-counter" id="charCount">0 / 250</span>
-        </div>
-
-        <button type="submit" class="send-btn" id="submitBtn">✨ Xabarni jonli lentaga yuborish</button>
-      </form>
-    </div>
-
-    <div class="feed-controls">
-      <div class="feed-stats">Jami xabarlar: <span id="totalCount">0</span></div>
-      <div class="sort-tabs">
-        <button type="button" class="sort-btn active" data-sort="newest">🕒 Yangilari</button>
-        <button type="button" class="sort-btn" data-sort="top">🔥 Top</button>
-      </div>
-    </div>
-
-    <ul class="feed-list" id="notesList"></ul>
-
-    <footer class="footer">
-      <div>© 2026 Andijon Davlat Universiteti (ADU) • <strong>ATT guruhi talabasi Chabanov Ruslan Alievich</strong></div>
-      <div>Powered by TiDB Cloud MySQL &amp; Netlify Serverless Functions</div>
-    </footer>
-  </div>
-
-  <script>
-    const API_URL = '/.netlify/functions/api';
-
-    const form = document.getElementById('noteForm');
-    const input = document.getElementById('nameInput');
-    const charCount = document.getElementById('charCount');
-    const submitBtn = document.getElementById('submitBtn');
-    const list = document.getElementById('notesList');
-    const totalCountEl = document.getElementById('totalCount');
-    const adminToggle = document.getElementById('adminToggle');
-    const syncStatus = document.getElementById('syncStatus');
-
-    let selectedRole = 'ATT Talabasi';
-    let currentSort = 'newest';
-    let cachedNotes = [];
-    let lastDataSignature = '';
-    let visitorCountry = 'Uzbekistan';
-    let isSubmitting = false;
-
-    let adminPass = sessionStorage.getItem('adu_v2_admin') || '';
-    let userReactions = JSON.parse(localStorage.getItem('adu_v2_reactions') || '{}');
-
-    fetch('https://ipapi.co/json/')
-      .then(r => r.json())
-      .then(geo => { if (geo && geo.country_name) visitorCountry = geo.country_name; })
-      .catch(() => {});
-
-    document.querySelectorAll('.role-pill').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.role-pill').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        selectedRole = btn.dataset.role;
-      });
-    });
-
-    input.addEventListener('input', () => {
-      charCount.textContent = `${input.value.length} / 250`;
-    });
-
-    document.querySelectorAll('.sort-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentSort = btn.dataset.sort;
-        renderNotes(false);
-      });
-    });
-
-    function updateAdminUI() {
-      if (adminPass) {
-        adminToggle.textContent = '🔓 Admin (ON)';
-        adminToggle.classList.add('active');
-      } else {
-        adminToggle.textContent = '🔐 Admin';
-        adminToggle.classList.remove('active');
-      }
-    }
-    updateAdminUI();
-
-    adminToggle.addEventListener('click', () => {
-      if (adminPass) {
-        adminPass = '';
-        sessionStorage.removeItem('adu_v2_admin');
-        updateAdminUI();
-        renderNotes(false);
-      } else {
-        const pass = prompt('Admin parolni kiriting:');
-        if (pass) {
-          adminPass = pass.trim();
-          sessionStorage.setItem('adu_v2_admin', adminPass);
-          updateAdminUI();
-          renderNotes(false);
-        }
-      }
-    });
-
-    function escapeHtml(str) {
-      const div = document.createElement('div');
-      div.textContent = str;
-      return div.innerHTML;
-    }
-
-    function getAvatarStyle(text) {
-      const gradients = [
-        'linear-gradient(135deg, #6366f1, #3b82f6)',
-        'linear-gradient(135deg, #06b6d4, #10b981)',
-        'linear-gradient(135deg, #ec4899, #8b5cf6)',
-        'linear-gradient(135deg, #f59e0b, #ef4444)'
-      ];
-      const code = (text || 'A').charCodeAt(0);
-      return gradients[code % gradients.length];
-    }
-
-    function getRoleBadgeInfo(role) {
-      switch (role) {
-        case 'Ustoz': return { cls: 'role-ustoz', label: '👨‍🏫 Ustoz' };
-        case 'Boshqa guruh': return { cls: 'role-other', label: '💻 Boshqa guruh' };
-        case 'Mehmon': return { cls: 'role-guest', label: '🚀 Mehmon' };
-        default: return { cls: 'role-att', label: '🎓 ATT Talabasi' };
-      }
-    }
-
-    async function handleReaction(id, type) {
-      const key = `${id}_${type}`;
-      const already = Boolean(userReactions[key]);
-      const action = already ? 'remove' : 'add';
-
-      if (already) {
-        delete userReactions[key];
-      } else {
-        userReactions[key] = true;
-      }
-      localStorage.setItem('adu_v2_reactions', JSON.stringify(userReactions));
-
-      const item = cachedNotes.find(n => n.id === id);
-      const col = `${type}_count`;
-      if (item) {
-        item[col] = Math.max(0, (Number(item[col]) || 0) + (already ? -1 : 1));
-      }
-      lastDataSignature = JSON.stringify(cachedNotes);
-      renderNotes(false);
-
-      try {
-        const res = await fetch(API_URL, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id, type, action })
-        });
-        const data = await res.json();
-        if (data.counts && item) {
-          item.heart_count = data.counts.heart_count;
-          item.fire_count = data.counts.fire_count;
-          item.clap_count = data.counts.clap_count;
-          lastDataSignature = JSON.stringify(cachedNotes);
-          renderNotes(false);
-        }
-      } catch (e) {}
-    }
-
-    async function deleteNote(id) {
-      if (!confirm("Ushbu xabarni o'chirmoqchimisiz?")) return;
-      try {
-        const res = await fetch(API_URL, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-admin-pass': adminPass
-          },
-          body: JSON.stringify({ id })
-        });
-        if (res.status === 401) {
-          alert("Admin paroli noto'g'ri!");
-          adminPass = '';
-          sessionStorage.removeItem('adu_v2_admin');
-          updateAdminUI();
-        }
-        await fetchNotes(true);
-      } catch (e) {
-        alert("O'chirishda xatolik");
-      }
-    }
-
-    function renderNotes(animateNew = false) {
-      list.innerHTML = '';
-      totalCountEl.textContent = cachedNotes.length;
-
-      const sorted = [...cachedNotes];
-      if (currentSort === 'top') {
-        sorted.sort((a, b) => {
-          const sumA = (Number(a.heart_count) || 0) + (Number(a.fire_count) || 0) + (Number(a.clap_count) || 0);
-          const sumB = (Number(b.heart_count) || 0) + (Number(b.fire_count) || 0) + (Number(b.clap_count) || 0);
-          return sumB - sumA || b.id - a.id;
-        });
-      }
-
-      sorted.forEach((item, idx) => {
-        const li = document.createElement('li');
-        li.className = 'post-card' + (animateNew && idx === 0 ? ' new-entry' :
+      background
