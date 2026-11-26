@@ -574,4 +574,371 @@
       text-align: center;
       padding: 16px;
       border-radius: 18px;
-      background
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+
+    .footer strong {
+      color: #e2e8f0;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-layer">
+    <div class="tech-grid"></div>
+    <div class="glow-orb orb-left"></div>
+    <div class="glow-orb orb-right"></div>
+    <div class="beam beam-1"></div>
+    <div class="beam beam-2"></div>
+    <div class="beam beam-3"></div>
+  </div>
+
+  <div class="container">
+    <nav class="nav-pill">
+      <div class="nav-brand">
+        <span class="pulse-ring"></span>
+        <span>ADU LIVE PULSE</span>
+      </div>
+      <div class="nav-right">
+        <span class="sync-tag">● Cloud DB</span>
+        <button type="button" class="admin-btn" id="adminToggle">🔐 Admin</button>
+      </div>
+    </nav>
+
+    <div class="hero">
+      <div class="uni-chip">🎓 Andijon Davlat Universiteti • 2026</div>
+      <h1>Talabalar va Ustozlar<br>Jonli Muloqot Maydoni</h1>
+      <p class="subtitle">Fikringizni qoldiring, guruhingizni belgilang va eng yaxshi tilaklarga reaksiya bildiring.</p>
+    </div>
+
+    <div class="creator-card">
+      <div class="creator-avatar">CR</div>
+      <div class="creator-meta">
+        <div class="creator-label">Loyiha muallifi • Full-Stack Developer</div>
+        <div class="creator-name">ATT guruhi talabasi Chabanov Ruslan Alievich tomonidan ishlab chiqildi</div>
+      </div>
+    </div>
+
+    <div class="composer-card">
+      <form id="noteForm">
+        <div class="role-selector" id="roleSelector">
+          <button type="button" class="role-pill selected" data-role="ATT Talabasi">🎓 ATT Talabasi</button>
+          <button type="button" class="role-pill" data-role="Boshqa guruh">💻 Boshqa guruh</button>
+          <button type="button" class="role-pill" data-role="Ustoz">👨‍🏫 Ustoz</button>
+          <button type="button" class="role-pill" data-role="Mehmon">🚀 Mehmon</button>
+        </div>
+
+        <div class="input-wrap">
+          <textarea id="nameInput" placeholder="Ismingiz va samimiy tilagingizni yozing..." maxlength="250" required></textarea>
+          <span class="char-counter" id="charCount">0 / 250</span>
+        </div>
+
+        <button type="submit" class="send-btn" id="submitBtn">✨ Xabarni jonli lentaga yuborish</button>
+      </form>
+    </div>
+
+    <div class="feed-controls">
+      <div class="feed-stats">Jami xabarlar: <span id="totalCount">0</span></div>
+      <div class="controls-right">
+        <button type="button" class="refresh-btn" id="refreshBtn">🔄 Yangilash</button>
+        <div class="sort-tabs">
+          <button type="button" class="sort-btn active" data-sort="newest">🕒 Yangilari</button>
+          <button type="button" class="sort-btn" data-sort="top">🔥 Top</button>
+        </div>
+      </div>
+    </div>
+
+    <ul class="feed-list" id="notesList"></ul>
+
+    <footer class="footer">
+      <div>© 2026 Andijon Davlat Universiteti (ADU) • <strong>ATT guruhi talabasi Chabanov Ruslan Alievich</strong></div>
+      <div>Powered by TiDB Cloud MySQL &amp; Netlify Serverless Functions</div>
+    </footer>
+  </div>
+
+  <script>
+    const API_URL = '/.netlify/functions/api';
+
+    const form = document.getElementById('noteForm');
+    const input = document.getElementById('nameInput');
+    const charCount = document.getElementById('charCount');
+    const submitBtn = document.getElementById('submitBtn');
+    const list = document.getElementById('notesList');
+    const totalCountEl = document.getElementById('totalCount');
+    const adminToggle = document.getElementById('adminToggle');
+    const refreshBtn = document.getElementById('refreshBtn');
+
+    let selectedRole = 'ATT Talabasi';
+    let currentSort = 'newest';
+    let cachedNotes = [];
+    let visitorCountry = 'Uzbekistan';
+    let isSubmitting = false;
+
+    let adminPass = sessionStorage.getItem('adu_v2_admin') || '';
+    let userReactions = JSON.parse(localStorage.getItem('adu_v2_reactions') || '{}');
+
+    fetch('https://ipapi.co/json/')
+      .then(r => r.json())
+      .then(geo => { if (geo && geo.country_name) visitorCountry = geo.country_name; })
+      .catch(() => {});
+
+    document.querySelectorAll('.role-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.role-pill').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedRole = btn.dataset.role;
+      });
+    });
+
+    input.addEventListener('input', () => {
+      charCount.textContent = `${input.value.length} / 250`;
+    });
+
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentSort = btn.dataset.sort;
+        renderNotes();
+      });
+    });
+
+    refreshBtn.addEventListener('click', async () => {
+      refreshBtn.textContent = '⏳...';
+      await fetchNotes();
+      refreshBtn.textContent = '🔄 Yangilash';
+    });
+
+    function updateAdminUI() {
+      if (adminPass) {
+        adminToggle.textContent = '🔓 Admin (ON)';
+        adminToggle.classList.add('active');
+      } else {
+        adminToggle.textContent = '🔐 Admin';
+        adminToggle.classList.remove('active');
+      }
+    }
+    updateAdminUI();
+
+    adminToggle.addEventListener('click', () => {
+      if (adminPass) {
+        adminPass = '';
+        sessionStorage.removeItem('adu_v2_admin');
+        updateAdminUI();
+        renderNotes();
+      } else {
+        const pass = prompt('Admin parolni kiriting:');
+        if (pass) {
+          adminPass = pass.trim();
+          sessionStorage.setItem('adu_v2_admin', adminPass);
+          updateAdminUI();
+          renderNotes();
+        }
+      }
+    });
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function getAvatarStyle(text) {
+      const gradients = [
+        'linear-gradient(135deg, #6366f1, #3b82f6)',
+        'linear-gradient(135deg, #06b6d4, #10b981)',
+        'linear-gradient(135deg, #ec4899, #8b5cf6)',
+        'linear-gradient(135deg, #f59e0b, #ef4444)'
+      ];
+      const code = (text || 'A').charCodeAt(0);
+      return gradients[code % gradients.length];
+    }
+
+    function getRoleBadgeInfo(role) {
+      switch (role) {
+        case 'Ustoz': return { cls: 'role-ustoz', label: '👨‍🏫 Ustoz' };
+        case 'Boshqa guruh': return { cls: 'role-other', label: '💻 Boshqa guruh' };
+        case 'Mehmon': return { cls: 'role-guest', label: '🚀 Mehmon' };
+        default: return { cls: 'role-att', label: '🎓 ATT Talabasi' };
+      }
+    }
+
+    async function handleReaction(id, type) {
+      const key = `${id}_${type}`;
+      const already = Boolean(userReactions[key]);
+      const action = already ? 'remove' : 'add';
+
+      if (already) {
+        delete userReactions[key];
+      } else {
+        userReactions[key] = true;
+      }
+      localStorage.setItem('adu_v2_reactions', JSON.stringify(userReactions));
+
+      const item = cachedNotes.find(n => n.id === id);
+      const col = `${type}_count`;
+      if (item) {
+        item[col] = Math.max(0, (Number(item[col]) || 0) + (already ? -1 : 1));
+      }
+      renderNotes();
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, type, action })
+        });
+        const data = await res.json();
+        if (data.counts && item) {
+          item.heart_count = data.counts.heart_count;
+          item.fire_count = data.counts.fire_count;
+          item.clap_count = data.counts.clap_count;
+          renderNotes();
+        }
+      } catch (e) {}
+    }
+
+    async function deleteNote(id) {
+      if (!confirm("Ushbu xabarni o'chirmoqchimisiz?")) return;
+      try {
+        const res = await fetch(API_URL, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-pass': adminPass
+          },
+          body: JSON.stringify({ id })
+        });
+        if (res.status === 401) {
+          alert("Admin paroli noto'g'ri!");
+          adminPass = '';
+          sessionStorage.removeItem('adu_v2_admin');
+          updateAdminUI();
+        }
+        await fetchNotes();
+      } catch (e) {
+        alert("O'chirishda xatolik");
+      }
+    }
+
+    function renderNotes() {
+      list.innerHTML = '';
+      totalCountEl.textContent = cachedNotes.length;
+
+      const sorted = [...cachedNotes];
+      if (currentSort === 'top') {
+        sorted.sort((a, b) => {
+          const sumA = (Number(a.heart_count) || 0) + (Number(a.fire_count) || 0) + (Number(a.clap_count) || 0);
+          const sumB = (Number(b.heart_count) || 0) + (Number(b.fire_count) || 0) + (Number(b.clap_count) || 0);
+          return sumB - sumA || b.id - a.id;
+        });
+      }
+
+      sorted.forEach((item) => {
+        const li = document.createElement('li');
+        li.className = 'post-card';
+
+        const initial = (item.name || '?').trim().charAt(0).toUpperCase();
+        const roleInfo = getRoleBadgeInfo(item.role);
+        const dateStr = item.created_at
+          ? new Date(item.created_at).toLocaleString('sv-SE', {
+              month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+            })
+          : '';
+
+        li.innerHTML = `
+          <div class="post-header">
+            <div class="author-left">
+              <div class="mini-avatar" style="background: ${getAvatarStyle(item.name)}">${escapeHtml(initial)}</div>
+              <span class="role-badge ${roleInfo.cls}">${roleInfo.label}</span>
+            </div>
+            <span class="post-time">${dateStr}</span>
+          </div>
+          <div class="post-body">${escapeHtml(item.name)}</div>
+          <div class="post-footer">
+            <span class="country-tag">🌍 ${escapeHtml(item.country || 'Uzbekistan')}</span>
+            <div class="reactions-row"></div>
+          </div>
+        `;
+
+        const reactRow = li.querySelector('.reactions-row');
+        const reactions = [
+          { type: 'heart', emoji: '❤️', count: Number(item.heart_count) || 0 },
+          { type: 'fire', emoji: '🔥', count: Number(item.fire_count) || 0 },
+          { type: 'clap', emoji: '👏', count: Number(item.clap_count) || 0 }
+        ];
+
+        reactions.forEach(r => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          const isAct = Boolean(userReactions[`${item.id}_${r.type}`]);
+          btn.className = 'react-btn' + (isAct ? ' active' : '');
+          btn.textContent = `${r.emoji} ${r.count}`;
+          btn.onclick = () => handleReaction(item.id, r.type);
+          reactRow.appendChild(btn);
+        });
+
+        if (adminPass && item.id) {
+          const del = document.createElement('button');
+          del.type = 'button';
+          del.className = 'del-btn';
+          del.textContent = '🗑';
+          del.title = "O'chirish";
+          del.onclick = () => deleteNote(item.id);
+          reactRow.appendChild(del);
+        }
+
+        list.appendChild(li);
+      });
+    }
+
+    async function fetchNotes() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          cachedNotes = data;
+          renderNotes();
+        }
+      } catch (e) {}
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (isSubmitting) return;
+      const name = input.value.trim();
+      if (!name) return;
+
+      isSubmitting = true;
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ Yuborilmoqda...';
+
+      try {
+        await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            role: selectedRole,
+            country: visitorCountry
+          })
+        });
+        input.value = '';
+        charCount.textContent = '0 / 250';
+        await fetchNotes();
+      } catch (err) {
+        alert('Xatolik yuz berdi');
+      } finally {
+        isSubmitting = false;
+        submitBtn.disabled = false;
+        submitBtn.textContent = '✨ Xabarni jonli lentaga yuborish';
+      }
+    });
+
+    fetchNotes();
+  </script>
+</body>
+</html>
