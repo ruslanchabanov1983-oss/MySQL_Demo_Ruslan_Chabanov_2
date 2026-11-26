@@ -1,50 +1,922 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MySQL demo</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ADU • Live Pulse Board — Chabanov Ruslan Alievich</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 480px; margin: 40px auto; padding: 0 16px; }
-    input { padding: 8px; width: 60%; }
-    button { padding: 8px 14px; }
-    li { margin: 6px 0; }
-    small { color: #666; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background-color: #07090f;
+      color: #f8fafc;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 48px;
+      position: relative;
+    }
+
+    /* Живой фон Aurora / Mesh Gradient */
+    .aurora-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(95px);
+      opacity: 0.45;
+      animation: drift 16s ease-in-out infinite alternate;
+    }
+
+    .orb-1 {
+      width: 420px;
+      height: 420px;
+      background: radial-gradient(circle, #6366f1, #3b82f6);
+      top: -100px;
+      left: -80px;
+    }
+
+    .orb-2 {
+      width: 380px;
+      height: 380px;
+      background: radial-gradient(circle, #06b6d4, #10b981);
+      bottom: -80px;
+      right: -60px;
+      animation-delay: -5s;
+    }
+
+    .orb-3 {
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, #a855f7, #ec4899);
+      top: 40%;
+      left: 55%;
+      opacity: 0.28;
+      animation-delay: -10s;
+    }
+
+    @keyframes drift {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(35px, -30px) scale(1.08); }
+      100% { transform: translate(-25px, 25px) scale(0.95); }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 620px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Верхняя панель навигации */
+    .nav-pill {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 999px;
+      margin-bottom: 28px;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      color: #f1f5f9;
+    }
+
+    .pulse-ring {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 12px #10b981;
+      animation: pulseGlow 2s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(0.8); opacity: 0.45; }
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sync-tag {
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    .admin-btn {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #e2e8f0;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .admin-btn:hover {
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .admin-btn.active {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: #10b981;
+      color: #6ee7b7;
+    }
+
+    /* Заголовок и карточка автора */
+    .hero {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    .uni-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 999px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(129, 140, 248, 0.3);
+      color: #a5b4fc;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+      margin-bottom: 10px;
+      background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 14.5px;
+      color: #94a3b8;
+      max-width: 460px;
+      margin: 0 auto 18px;
+      line-height: 1.5;
+    }
+
+    .creator-card {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.045);
+      backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 22px;
+    }
+
+    .creator-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 15px;
+      color: #fff;
+      flex-shrink: 0;
+      box-shadow: 0 6px 18px rgba(99, 102, 241, 0.35);
+    }
+
+    .creator-meta {
+      text-align: left;
+    }
+
+    .creator-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #38bdf8;
+      font-weight: 700;
+    }
+
+    .creator-name {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #f1f5f9;
+      margin-top: 2px;
+    }
+
+    /* Стеклянная форма ввода */
+    .composer-card {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.045);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+      margin-bottom: 26px;
+    }
+
+    .role-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .role-pill {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.04);
+      color: #cbd5e1;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .role-pill:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .role-pill.selected {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.35), rgba(6, 182, 212, 0.35));
+      border-color: #38bdf8;
+      color: #ffffff;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
+    }
+
+    .input-wrap {
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 78px;
+      resize: none;
+      padding: 14px 16px 28px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(7, 9, 15, 0.65);
+      color: #ffffff;
+      font-size: 15px;
+      line-height: 1.45;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    textarea::placeholder {
+      color: #64748b;
+    }
+
+    textarea:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.22);
+    }
+
+    .char-counter {
+      position: absolute;
+      bottom: 8px;
+      right: 12px;
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    .send-btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 10px 28px rgba(99, 102, 241, 0.35);
+    }
+
+    .send-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 34px rgba(6, 182, 212, 0.45);
+    }
+
+    .send-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Панель управления лентой */
+    .feed-controls {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding: 0 4px;
+    }
+
+    .feed-stats {
+      font-size: 13px;
+      font-weight: 600;
+      color: #cbd5e1;
+    }
+
+    .feed-stats span {
+      color: #38bdf8;
+      font-weight: 800;
+    }
+
+    .sort-tabs {
+      display: flex;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 999px;
+      padding: 3px;
+    }
+
+    .sort-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .sort-btn.active {
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+    }
+
+    /* Лента сообщений */
+    .feed-list {
+      width: 100%;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .post-card {
+      background: rgba(255, 255, 255, 0.045);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 20px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+      animation: fadeUp 0.35s ease;
+    }
+
+    .post-card:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .post-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .author-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mini-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .role-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      letter-spacing: 0.3px;
+    }
+
+    .role-att { background: rgba(56, 189, 248, 0.16); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.3); }
+    .role-other { background: rgba(168, 85, 247, 0.16); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.3); }
+    .role-ustoz { background: rgba(245, 158, 11, 0.18); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.35); }
+    .role-guest { background: rgba(16, 185, 129, 0.16); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+    .post-time {
+      font-size: 11.5px;
+      color: #64748b;
+    }
+
+    .post-body {
+      font-size: 15.5px;
+      color: #f8fafc;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .post-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .country-tag {
+      font-size: 12px;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .reactions-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .react-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .react-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      transform: scale(1.05);
+    }
+
+    .react-btn.active {
+      background: rgba(99, 102, 241, 0.25);
+      border-color: #818cf8;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .del-btn {
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(239, 68, 68, 0.16);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #fca5a5;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .del-btn:hover {
+      background: rgba(239, 68, 68, 0.4);
+      color: #ffffff;
+    }
+
+    /* Футер */
+    .footer {
+      width: 100%;
+      text-align: center;
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+
+    .footer strong {
+      color: #e2e8f0;
+    }
   </style>
 </head>
 <body>
-  <h1>Ismingizni qoldiring</h1>
-  <input id="name" placeholder="Ism" maxlength="100">
-  <button onclick="add()">Saqlash</button>
-  <ul id="list"></ul>
+  <div class="aurora-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
 
-<script>
-const API = "/.netlify/functions/api";
+  <div class="container">
+    <nav class="nav-pill">
+      <div class="nav-brand">
+        <span class="pulse-ring"></span>
+        <span>ADU LIVE PULSE</span>
+      </div>
+      <div class="nav-right">
+        <span class="sync-tag" id="syncStatus">Live Sync</span>
+        <button type="button" class="admin-btn" id="adminToggle">🔐 Admin</button>
+      </div>
+    </nav>
 
-async function load() {
-  const rows = await (await fetch(API)).json();
-  const ul = document.getElementById("list");
-  ul.innerHTML = "";
-  rows.forEach(r => {
-    const li = document.createElement("li");
-    li.textContent = r.name + " ";
-    const s = document.createElement("small");
-    s.textContent = "(" + new Date(r.created_at).toLocaleString() + ")";
-    li.appendChild(s);
-    ul.appendChild(li);
-  });
-}
+    <div class="hero">
+      <div class="uni-chip">🎓 Andijon Davlat Universiteti • 2026</div>
+      <h1>Talabalar va Ustozlar<br>Jonli Muloqot Maydoni</h1>
+      <p class="subtitle">Fikringizni qoldiring, guruhingizni belgilang va eng yaxshi tilaklarga reaksiya bildiring.</p>
+    </div>
 
-async function add() {
-  const input = document.getElementById("name");
-  const name = input.value.trim();
-  if (!name) return;
-  await fetch(API, { method: "POST", body: JSON.stringify({ name }) });
-  input.value = "";
-  load();
-}
+    <div class="creator-card">
+      <div class="creator-avatar">CR</div>
+      <div class="creator-meta">
+        <div class="creator-label">Loyiha muallifi • Full-Stack Developer</div>
+        <div class="creator-name">ATT guruhi talabasi Chabanov Ruslan Alievich tomonidan ishlab chiqildi</div>
+      </div>
+    </div>
 
-load();
-</script>
+    <div class="composer-card">
+      <form id="noteForm">
+        <div class="role-selector" id="roleSelector">
+          <button type="button" class="role-pill selected" data-role="ATT Talabasi">🎓 ATT Talabasi</button>
+          <button type="button" class="role-pill" data-role="Boshqa guruh">💻 Boshqa guruh</button>
+          <button type="button" class="role-pill" data-role="Ustoz">👨‍🏫 Ustoz</button>
+          <button type="button" class="role-pill" data-role="Mehmon">🚀 Mehmon</button>
+        </div>
+
+        <div class="input-wrap">
+          <textarea id="nameInput" placeholder="Ismingiz va samimiy tilagingizni yozing..." maxlength="250" required></textarea>
+          <span class="char-counter" id="charCount">0 / 250</span>
+        </div>
+
+        <button type="submit" class="send-btn" id="submitBtn">✨ Xabarni jonli lentaga yuborish</button>
+      </form>
+    </div>
+
+    <div class="feed-controls">
+      <div class="feed-stats">Jami xabarlar: <span id="totalCount">0</span></div>
+      <div class="sort-tabs">
+        <button type="button" class="sort-btn active" data-sort="newest">🕒 Yangilari</button>
+        <button type="button" class="sort-btn" data-sort="top">🔥 Top</button>
+      </div>
+    </div>
+
+    <ul class="feed-list" id="notesList"></ul>
+
+    <footer class="footer">
+      <div>© 2026 Andijon Davlat Universiteti (ADU) • <strong>ATT guruhi talabasi Chabanov Ruslan Alievich</strong></div>
+      <div>Powered by TiDB Cloud MySQL &amp; Netlify Serverless Functions</div>
+    </footer>
+  </div>
+
+  <script>
+    const API_URL = '/.netlify/functions/api';
+
+    const form = document.getElementById('noteForm');
+    const input = document.getElementById('nameInput');
+    const charCount = document.getElementById('charCount');
+    const submitBtn = document.getElementById('submitBtn');
+    const list = document.getElementById('notesList');
+    const totalCountEl = document.getElementById('totalCount');
+    const adminToggle = document.getElementById('adminToggle');
+    const syncStatus = document.getElementById('syncStatus');
+
+    let selectedRole = 'ATT Talabasi';
+    let currentSort = 'newest';
+    let cachedNotes = [];
+    let visitorCountry = 'Uzbekistan';
+    let isSubmitting = false;
+
+    let adminPass = sessionStorage.getItem('adu_v2_admin') || '';
+    let userReactions = JSON.parse(localStorage.getItem('adu_v2_reactions') || '{}');
+
+    // Определение страны
+    fetch('https://ipapi.co/json/')
+      .then(r => r.json())
+      .then(geo => { if (geo && geo.country_name) visitorCountry = geo.country_name; })
+      .catch(() => {});
+
+    // Выбор роли
+    document.querySelectorAll('.role-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.role-pill').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedRole = btn.dataset.role;
+      });
+    });
+
+    // Счетчик символов
+    input.addEventListener('input', () => {
+      charCount.textContent = `${input.value.length} / 250`;
+    });
+
+    // Переключение сортировки
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentSort = btn.dataset.sort;
+        renderNotes();
+      });
+    });
+
+    // Админ-панель
+    function updateAdminUI() {
+      if (adminPass) {
+        adminToggle.textContent = '🔓 Admin (ON)';
+        adminToggle.classList.add('active');
+      } else {
+        adminToggle.textContent = '🔐 Admin';
+        adminToggle.classList.remove('active');
+      }
+    }
+    updateAdminUI();
+
+    adminToggle.addEventListener('click', () => {
+      if (adminPass) {
+        adminPass = '';
+        sessionStorage.removeItem('adu_v2_admin');
+        updateAdminUI();
+        renderNotes();
+      } else {
+        const pass = prompt('Admin parolni kiriting:');
+        if (pass) {
+          adminPass = pass.trim();
+          sessionStorage.setItem('adu_v2_admin', adminPass);
+          updateAdminUI();
+          renderNotes();
+        }
+      }
+    });
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function getAvatarStyle(text) {
+      const gradients = [
+        'linear-gradient(135deg, #6366f1, #3b82f6)',
+        'linear-gradient(135deg, #06b6d4, #10b981)',
+        'linear-gradient(135deg, #ec4899, #8b5cf6)',
+        'linear-gradient(135deg, #f59e0b, #ef4444)'
+      ];
+      const code = (text || 'A').charCodeAt(0);
+      return gradients[code % gradients.length];
+    }
+
+    function getRoleBadgeInfo(role) {
+      switch (role) {
+        case 'Ustoz': return { cls: 'role-ustoz', label: '👨‍🏫 Ustoz' };
+        case 'Boshqa guruh': return { cls: 'role-other', label: '💻 Boshqa guruh' };
+        case 'Mehmon': return { cls: 'role-guest', label: '🚀 Mehmon' };
+        default: return { cls: 'role-att', label: '🎓 ATT Talabasi' };
+      }
+    }
+
+    async function handleReaction(id, type, btnEl) {
+      const key = `${id}_${type}`;
+      const already = Boolean(userReactions[key]);
+      const action = already ? 'remove' : 'add';
+
+      if (already) {
+        delete userReactions[key];
+      } else {
+        userReactions[key] = true;
+      }
+      localStorage.setItem('adu_v2_reactions', JSON.stringify(userReactions));
+
+      // Мгновенно обновляем локальный кэш
+      const item = cachedNotes.find(n => n.id === id);
+      const col = `${type}_count`;
+      if (item) {
+        item[col] = Math.max(0, (Number(item[col]) || 0) + (already ? -1 : 1));
+      }
+      renderNotes();
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, type, action })
+        });
+        const data = await res.json();
+        if (data.counts && item) {
+          item.heart_count = data.counts.heart_count;
+          item.fire_count = data.counts.fire_count;
+          item.clap_count = data.counts.clap_count;
+          renderNotes();
+        }
+      } catch (e) {}
+    }
+
+    async function deleteNote(id) {
+      if (!confirm("Ushbu xabarni o'chirmoqchimisiz?")) return;
+      try {
+        const res = await fetch(API_URL, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-pass': adminPass
+          },
+          body: JSON.stringify({ id })
+        });
+        if (res.status === 401) {
+          alert("Admin paroli noto'g'ri!");
+          adminPass = '';
+          sessionStorage.removeItem('adu_v2_admin');
+          updateAdminUI();
+        }
+        await fetchNotes();
+      } catch (e) {
+        alert("O'chirishda xatolik");
+      }
+    }
+
+    function renderNotes() {
+      list.innerHTML = '';
+      totalCountEl.textContent = cachedNotes.length;
+
+      const sorted = [...cachedNotes];
+      if (currentSort === 'top') {
+        sorted.sort((a, b) => {
+          const sumA = (Number(a.heart_count) || 0) + (Number(a.fire_count) || 0) + (Number(a.clap_count) || 0);
+          const sumB = (Number(b.heart_count) || 0) + (Number(b.fire_count) || 0) + (Number(b.clap_count) || 0);
+          return sumB - sumA || b.id - a.id;
+        });
+      }
+
+      sorted.forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'post-card';
+
+        const initial = (item.name || '?').trim().charAt(0).toUpperCase();
+        const roleInfo = getRoleBadgeInfo(item.role);
+        const dateStr = item.created_at
+          ? new Date(item.created_at).toLocaleString('sv-SE', {
+              month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+            })
+          : '';
+
+        li.innerHTML = `
+          <div class="post-header">
+            <div class="author-left">
+              <div class="mini-avatar" style="background: ${getAvatarStyle(item.name)}">${escapeHtml(initial)}</div>
+              <span class="role-badge ${roleInfo.cls}">${roleInfo.label}</span>
+            </div>
+            <span class="post-time">${dateStr}</span>
+          </div>
+          <div class="post-body">${escapeHtml(item.name)}</div>
+          <div class="post-footer">
+            <span class="country-tag">🌍 ${escapeHtml(item.country || 'Uzbekistan')}</span>
+            <div class="reactions-row"></div>
+          </div>
+        `;
+
+        const reactRow = li.querySelector('.reactions-row');
+        const reactions = [
+          { type: 'heart', emoji: '❤️', count: Number(item.heart_count) || 0 },
+          { type: 'fire', emoji: '🔥', count: Number(item.fire_count) || 0 },
+          { type: 'clap', emoji: '👏', count: Number(item.clap_count) || 0 }
+        ];
+
+        reactions.forEach(r => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          const isAct = Boolean(userReactions[`${item.id}_${r.type}`]);
+          btn.className = 'react-btn' + (isAct ? ' active' : '');
+          btn.textContent = `${r.emoji} ${r.count}`;
+          btn.onclick = () => handleReaction(item.id, r.type, btn);
+          reactRow.appendChild(btn);
+        });
+
+        if (adminPass && item.id) {
+          const del = document.createElement('button');
+          del.type = 'button';
+          del.className = 'del-btn';
+          del.textContent = '🗑';
+          del.title = "O'chirish";
+          del.onclick = () => deleteNote(item.id);
+          reactRow.appendChild(del);
+        }
+
+        list.appendChild(li);
+      });
+    }
+
+    async function fetchNotes() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          cachedNotes = data;
+          renderNotes();
+          syncStatus.textContent = '● Live';
+        }
+      } catch (e) {
+        syncStatus.textContent = 'Offline';
+      }
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (isSubmitting) return;
+      const name = input.value.trim();
+      if (!name) return;
+
+      isSubmitting = true;
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ Yuborilmoqda...';
+
+      try {
+        await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            role: selectedRole,
+            country: visitorCountry
+          })
+        });
+        input.value = '';
+        charCount.textContent = '0 / 250';
+        await fetchNotes();
+      } catch (err) {
+        alert('Xatolik yuz berdi');
+      } finally {
+        isSubmitting = false;
+        submitBtn.disabled = false;
+        submitBtn.textContent = '✨ Xabarni jonli lentaga yuborish';
+      }
+    });
+
+    fetchNotes();
+    // Автообновление ленты каждые 6 секунд
+    setInterval(() => {
+      if (!isSubmitting) fetchNotes();
+    }, 6000);
+  </script>
 </body>
 </html>
